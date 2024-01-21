@@ -1,45 +1,42 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const App = () => {
-  const [value, setValue] = useState('')
-  const [rates, setRates] = useState({})
-  const [currency, setCurrency] = useState(null)
+  const [value, setValue] = useState('');
+  const [allCountries, setAllCountries] = useState([]);
+  const [filteredCountries, setFilteredCountries] = useState([]);
 
   useEffect(() => {
-    console.log('effect run, currency is now', currency)
+    // Fetch all countries when the component mounts
+    axios.get('https://studies.cs.helsinki.fi/restcountries/api/all')
+      .then(response => {
+        setAllCountries(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching all countries:', error);
+      });
+  }, []);
 
-    // skip if currency is not defined
-    if (currency) {
-      console.log('fetching exchange rates...')
-      axios
-        .get(`https://open.er-api.com/v6/latest/${currency}`)
-        .then(response => {
-          setRates(response.data.rates)
-        })
-    }
-  }, [currency])
+  useEffect(() => {
+    // Filter countries based on the input value
+    const filtered = allCountries.filter(country =>
+      country.name.common.toLowerCase().includes(value.toLowerCase())
+    ).map(country => country.name); // Map to the "name" property
+    setFilteredCountries(filtered);
+  }, [value, allCountries]);
 
   const handleChange = (event) => {
-    setValue(event.target.value)
-  }
-
-  const onSearch = (event) => {
-    event.preventDefault()
-    setCurrency(value)
-  }
+    setValue(event.target.value);
+  };
 
   return (
     <div>
-      <form onSubmit={onSearch}>
-        currency: <input value={value} onChange={handleChange} />
-        <button type="submit">exchange rate</button>
-      </form>
+      <input value={value} onChange={handleChange} />
       <pre>
-        {JSON.stringify(rates, null, 2)}
+        {JSON.stringify(filteredCountries.map(country => country.common), null, 2)}
       </pre>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
