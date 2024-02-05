@@ -39,7 +39,7 @@ const App = () => {
           capital: country.capital ? country.capital[0] : 'N/A',
           area: country.area,
           languages: country.languages ? Object.entries(country.languages).map(([code, name]) => name) : [],
-          flag: country.flags.png,
+          flag: country.flags.png ? country.flags.png : country.flags.svg,
         }]);
       } else if (filtered.length > 10) {
         setFilteredCountries(['too many matches, please be more specific']);
@@ -54,7 +54,10 @@ const App = () => {
     setValue(event.target.value);
   };
 
+
+  console.log("filteredCountries data", filteredCountries);
   return (
+    
     <div>
       <input value={value} onChange={handleChange} />
       <pre>
@@ -75,23 +78,25 @@ const App = () => {
             )
           : filteredCountries[0] === 'too many matches, please be more specific'
             ? filteredCountries[0]
-            : JSON.stringify(filteredCountries, null, 2)
+            : <div>
+                <ul>
+                  {filteredCountries.map((country, index) => (
+                    
+                    <li key={index}>
+                      {/* Ensure this is the correct property path to display the country's name */}
+                      {country} {/* This assumes 'country' objects have a 'name' property */}
+                      
+                      {/* Adjust the button onClick to reference 'country.name' */}
+                      <button onClick={() => alert(`More details for ${country}`)}>Show</button>
+                    </li>
+                  ))
+                  }
+                </ul>
+              </div>
         }
       </pre>
-      {/* <pre>
-        {filteredCountries.length === 1 && typeof filteredCountries[0] === 'too many matches, please be more specific'
-          ? (
-              <div>
-                <h2>{filteredCountries[0].name}</h2>
-                <p>Capital: {filteredCountries[0].capital}</p>
-                <p>Area: {filteredCountries[0].area} km²</p>
-                <p>Languages: {filteredCountries[0].languages}</p>
-                <img src={filteredCountries[0].flag} alt={`Flag of ${filteredCountries[0].name}`} />
-              </div>
-            )
-          : JSON.stringify(filteredCountries, null, 2)
-        }
-      </pre> */}
+    
+            
     </div>
   );
 };
