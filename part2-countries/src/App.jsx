@@ -55,6 +55,15 @@ const App = () => {
     setValue(event.target.value);
   };
 
+  const handleClose = () => {
+    setValue(''); // Reset the input field to empty
+    setSelectedCountry(null); // Deselect any selected country
+    // Assuming you have a way to reset filtered countries, do it here
+    // For example, if filteredCountries is a state:
+    // setFilteredCountries([]);
+  };
+  
+
   console.log("filteredCountries data", filteredCountries);
   return (
     
@@ -91,6 +100,8 @@ const App = () => {
                   ))}
                 </ul>
                 <img src={filteredCountries[0].flag} alt={`Flag of ${filteredCountries[0].name}`} style={{ width: '100px', height: 'auto' }} />
+                {/* Add the Close button here */}
+                <button onClick={handleClose}>Close</button>
               </div>
             )
           : filteredCountries[0] === 'too many matches, please be more specific'
