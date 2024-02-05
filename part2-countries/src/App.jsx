@@ -5,6 +5,7 @@ const App = () => {
   const [value, setValue] = useState('');
   const [allCountries, setAllCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   useEffect(() => {
     // Fetch all countries when the component mounts
@@ -54,15 +55,31 @@ const App = () => {
     setValue(event.target.value);
   };
 
-
   console.log("filteredCountries data", filteredCountries);
   return (
     
     <div>
       <input value={value} onChange={handleChange} />
       <pre>
-        {filteredCountries.length === 1 && typeof filteredCountries[0] === 'object'
-          ? (
+          {selectedCountry ? 
+          (
+              // This block will render the detailed view of the selected country
+              <div>
+                <h2>{selectedCountry.name}</h2>
+                <p>Capital: {selectedCountry.capital}</p>
+                <p>Area: {selectedCountry.area} km²</p>
+                <p>Languages:</p>
+                <ul>
+                  {selectedCountry.languages.map((language, index) => (
+                    <li key={index}>{language}</li>
+                  ))}
+                </ul>
+                <img src={selectedCountry.flag} alt={`Flag of ${selectedCountry.name}`} style={{ width: '100px', height: 'auto' }} />
+                <button onClick={() => setSelectedCountry(null)}>Close</button>
+              </div>
+            )
+          : filteredCountries.length === 1 && typeof filteredCountries[0] === 'object' ? 
+          (
               <div>
                 <h2>{filteredCountries[0].name}</h2>
                 <p>Capital: {filteredCountries[0].capital}</p>
@@ -81,13 +98,23 @@ const App = () => {
             : <div>
                 <ul>
                   {filteredCountries.map((country, index) => (
-                    
                     <li key={index}>
                       {/* Ensure this is the correct property path to display the country's name */}
                       {country} {/* This assumes 'country' objects have a 'name' property */}
                       
                       {/* Adjust the button onClick to reference 'country.name' */}
-                      <button onClick={() => alert(`More details for ${country}`)}>Show</button>
+                      <button onClick={() => {
+                        const countryDetail = allCountries.find(countryItem => countryItem.name.common === country);
+                        if (countryDetail) {
+                          setSelectedCountry({
+                            name: countryDetail.name.common,
+                            capital: countryDetail.capital ? countryDetail.capital[0] : 'N/A',
+                            area: countryDetail.area,
+                            languages: countryDetail.languages ? Object.entries(countryDetail.languages).map(([code, name]) => name) : [],
+                            flag: countryDetail.flags.png ? countryDetail.flags.png : countryDetail.flags.svg,
+                          });
+                        }
+                      }}>Show</button>
                     </li>
                   ))
                   }
@@ -95,8 +122,6 @@ const App = () => {
               </div>
         }
       </pre>
-    
-            
     </div>
   );
 };
