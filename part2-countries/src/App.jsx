@@ -5,14 +5,17 @@ const App = () => {
   const [value, setValue] = useState('');
   const [allCountries, setAllCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
+  const [city, setCity] = useState([]);
+  const [cityWeather, setCityWeather] = useState({main: {}, weather: [], wind: {}});
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const api_key = import.meta.env.VITE_WEATHER_API_KEY
+// variable api_key now has the value set in startup
 
   useEffect(() => {
     // Fetch all countries when the component mounts
     axios.get('https://studies.cs.helsinki.fi/restcountries/api/all')
       .then(response => {
         console.log("SEE ALL DATA", response);
-        console.log("SEE ALL DATA NAME COMMON", response.data.map(item => item.name.common));
         setAllCountries(response.data);
       })
       .catch(error => {
@@ -51,6 +54,18 @@ const App = () => {
     }
   }, [value, allCountries]);
 
+  useEffect(() => {
+    axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city.capital}&units=metric&appid=${api_key}`)
+      .then(response => {
+        console.log("SEE WEATHER DATA", response.data);
+        setCityWeather({
+          main: response.data.main,
+          weather: response.data.weather[0],
+          wind: response.data.wind
+        });
+      })
+  }, [city]);
+
   const handleChange = (event) => {
     setValue(event.target.value);
   };
@@ -62,9 +77,10 @@ const App = () => {
     // For example, if filteredCountries is a state:
     // setFilteredCountries([]);
   };
-  
 
-  console.log("filteredCountries data", filteredCountries);
+  console.log("CITY WEATHER", city);
+
+  console.log("CITY WEATHER DATA", cityWeather);
   return (
     
     <div>
@@ -84,6 +100,13 @@ const App = () => {
                   ))}
                 </ul>
                 <img src={selectedCountry.flag} alt={`Flag of ${selectedCountry.name}`} style={{ width: '100px', height: 'auto' }} />
+                <div>
+                  Temperature
+                  <ul>Temp:  {cityWeather.main.temp} °C</ul>
+                  <ul>Feels like: {cityWeather.main.feels_like} °C</ul>
+                  <ul>Description: {cityWeather.weather.main}</ul> 
+                  <ul>Wind: {cityWeather.wind.speed} m/s</ul>
+                </div>
                 <button onClick={() => setSelectedCountry(null)}>Close</button>
               </div>
             )
@@ -123,7 +146,10 @@ const App = () => {
                             area: countryDetail.area,
                             languages: countryDetail.languages ? Object.entries(countryDetail.languages).map(([code, name]) => name) : [],
                             flag: countryDetail.flags.png ? countryDetail.flags.png : countryDetail.flags.svg,
-                          });
+                          })
+                          setCity({
+                            capital: countryDetail.capital[0],
+                          })
                         }
                       }}>Show</button>
                     </li>
