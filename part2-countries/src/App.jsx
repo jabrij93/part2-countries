@@ -5,6 +5,7 @@ const App = () => {
   const [value, setValue] = useState('');
   const [allCountries, setAllCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   useEffect(() => {
     // Fetch all countries when the component mounts
@@ -56,47 +57,70 @@ const App = () => {
 
 
   console.log("filteredCountries data", filteredCountries);
+
+  console.log("selectedCountry data", selectedCountry);
+
   return (
-    
     <div>
       <input value={value} onChange={handleChange} />
       <pre>
-        {filteredCountries.length === 1 && typeof filteredCountries[0] === 'object'
-          ? (
-              <div>
-                <h2>{filteredCountries[0].name}</h2>
-                <p>Capital: {filteredCountries[0].capital}</p>
-                <p>Area: {filteredCountries[0].area} km²</p>
-                <p>Languages:</p>
-                <ul>
-                  {filteredCountries[0].languages.map((language, index) => (
-                    <li key={index}>{language}</li>
-                  ))}
-                </ul>
-                <img src={filteredCountries[0].flag} alt={`Flag of ${filteredCountries[0].name}`} style={{ width: '100px', height: 'auto' }} />
-              </div>
-            )
-          : filteredCountries[0] === 'too many matches, please be more specific'
-            ? filteredCountries[0]
-            : <div>
-                <ul>
-                  {filteredCountries.map((country, index) => (
-                    
-                    <li key={index}>
-                      {/* Ensure this is the correct property path to display the country's name */}
-                      {country} {/* This assumes 'country' objects have a 'name' property */}
-                      
-                      {/* Adjust the button onClick to reference 'country.name' */}
-                      <button onClick={() => alert(`More details for ${country}`)}>Show</button>
-                    </li>
-                  ))
-                  }
-                </ul>
-              </div>
-        }
+        {selectedCountry !== null ? (
+          // Display selected country details
+          <div>
+            <h2>{selectedCountry.name}</h2>
+            <p>Capital: {selectedCountry.capital}</p>
+            <p>Area: {selectedCountry.area} km²</p>
+            <ul>
+              {selectedCountry.languages.map((language, index) => (
+                <li key={index}>{language}</li>
+              ))}
+            </ul>
+            <img src={selectedCountry.flag} alt={`Flag of ${selectedCountry.name}`} style={{ width: '100px', height: 'auto' }} />
+            <button onClick={()=>setSelectedCountry(null)}>Back</button>
+          </div>
+        ) : filteredCountries.length === 1 && typeof filteredCountries[0] === 'object' ? (
+          // Display details of the single filtered country
+          <div>
+            <h2>{filteredCountries[0].name}</h2>
+            <p>Capital: {filteredCountries[0].capital}</p>
+            <p>Area: {filteredCountries[0].area} km²</p>
+            <ul>
+              {filteredCountries[0].languages.map((language, index) => (
+                <li key={index}>{language}</li>
+              ))}
+            </ul>
+            <img src={filteredCountries[0].flag} alt={`Flag of ${filteredCountries[0].name}`} style={{ width: '100px', height: 'auto' }} />
+          </div>
+        ) : filteredCountries[0] === 'too many matches, please be more specific' ? (
+          // Display message for too many matches
+          <p>{filteredCountries[0]}</p>
+        ) : (
+          // Display list of filtered countries
+          <div>
+            <ul>
+              {filteredCountries.map((country, index) => (
+                <li key={index}>
+                  {country}
+                  <button onClick={() => {
+                    const selectCountry = allCountries.find(countryItem => countryItem.name.common === country);
+                    if (selectCountry) {
+                      setSelectedCountry({
+                        name: selectCountry.name.common,
+                        capital: selectCountry.capital ? selectCountry.capital[0] : 'N/A',
+                        area: selectCountry.area,
+                        languages: selectCountry.languages ? Object.entries(selectCountry.languages).map(([code, name]) => name) : [],
+                        flag: selectCountry.flags.png ? selectCountry.flags.png : selectCountry.flags.svg,
+                      });
+                    }
+                  }}>
+                    Show
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </pre>
-    
-            
     </div>
   );
 };
