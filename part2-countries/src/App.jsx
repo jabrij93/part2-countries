@@ -5,12 +5,14 @@ const App = () => {
   const [value, setValue] = useState('');
   const [allCountries, setAllCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
+  const [weatherIcon, setWeatherIcon] = useState({});
   const [city, setCity] = useState([]);
   const [cityWeather, setCityWeather] = useState({main: {}, weather: [], wind: {}});
   const [selectedCountry, setSelectedCountry] = useState(null);
   const api_key = import.meta.env.VITE_WEATHER_API_KEY
 // variable api_key now has the value set in startup
 
+  // Fetch all countries
   useEffect(() => {
     // Fetch all countries when the component mounts
     axios.get('https://studies.cs.helsinki.fi/restcountries/api/all')
@@ -61,10 +63,24 @@ const App = () => {
         setCityWeather({
           main: response.data.main,
           weather: response.data.weather[0],
-          wind: response.data.wind
+          wind: response.data.wind,
         });
       })
   }, [city]);
+
+
+  // Fetch weather icon
+  useEffect(() => {
+    // Fetch all countries when the component mounts
+    axios.get(`https://openweathermap.org/img/wn/${cityWeather.weather.icon}@2x.png`)
+      .then(response => {
+        console.log("WEATHER ICON", response);
+        weatherIcon()
+      })
+      .catch(error => {
+        console.error('Error fetching weather icon', error);
+      });
+  }, []);
 
   const handleChange = (event) => {
     setValue(event.target.value);
@@ -106,6 +122,7 @@ const App = () => {
                   <ul>Feels like: {cityWeather.main.feels_like} °C</ul>
                   <ul>Description: {cityWeather.weather.main}</ul> 
                   <ul>Wind: {cityWeather.wind.speed} m/s</ul>
+                  <ul>Icon: <img src={`https://openweathermap.org/img/wn/${cityWeather.weather.icon}@2x.png`} alt="Weather icon" /></ul> // Display the image here
                 </div>
                 <button onClick={() => setSelectedCountry(null)}>Close</button>
               </div>
