@@ -122,7 +122,7 @@ const App = () => {
                   <ul>Feels like: {cityWeather.main.feels_like} °C</ul>
                   <ul>Description: {cityWeather.weather.main}</ul> 
                   <ul>Wind: {cityWeather.wind.speed} m/s</ul>
-                  <ul>Icon: <img src={`https://openweathermap.org/img/wn/${cityWeather.weather.icon}@2x.png`} alt="Weather icon" /></ul> // Display the image here
+                  <ul>Icon: <img src={`https://openweathermap.org/img/wn/${cityWeather.weather.icon}@2x.png`} alt="Weather icon" /></ul>
                 </div>
                 <button onClick={() => setSelectedCountry(null)}>Close</button>
               </div>
@@ -140,6 +140,14 @@ const App = () => {
                   ))}
                 </ul>
                 <img src={filteredCountries[0].flag} alt={`Flag of ${filteredCountries[0].name}`} style={{ width: '100px', height: 'auto' }} />
+                <div>
+                  Temperature
+                  <ul>Temp:  {cityWeather.main.temp} °C</ul>
+                  <ul>Feels like: {cityWeather.main.feels_like} °C</ul>
+                  <ul>Description: {cityWeather.weather.main}</ul> 
+                  <ul>Wind: {cityWeather.wind.speed} m/s</ul>
+                  <ul>Icon: <img src={`https://openweathermap.org/img/wn/${cityWeather.weather.icon}@2x.png`} alt="Weather icon" /></ul>
+                </div>
                 {/* Add the Close button here */}
                 <button onClick={handleClose}>Close</button>
               </div>
